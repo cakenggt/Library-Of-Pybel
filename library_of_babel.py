@@ -34,6 +34,8 @@ def main():
             search_str = ' '.join(input_str.split(' ')[1:])
             key_str = search(search_str)
             print('\n'+getPage(key_str)+'\n@'+key_str+'\n')
+        if input_str.startswith('test'):
+            test()
         if input_str.startswith('quit'):
             return
 
@@ -60,7 +62,6 @@ def search(search_str):
     search_str = front_padding + search_str + back_padding
     hex_addr = int2base(stringToNumber(search_str)+(loc_int*loc_mult), 36) #change to base 36 and add loc_int, then make string
     key_str = hex_addr + ':' + wall + ':' + shelf + ':' + volume + ':' + page
-    #key_str = hex_addr + ':0:0:0:0'
     page_text = getPage(key_str)
     assert page_text == search_str, '\npage text:\n'+page_text+'\nstrings:\n'+search_str
     return key_str
@@ -122,5 +123,4 @@ def int2base(x, base):
     digits.reverse()
     return ''.join(digits)
 
-test()
 main()
