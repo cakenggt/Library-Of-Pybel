@@ -2,7 +2,8 @@ import math
 import string
 import random
 
-length_of_page = 3469
+length_of_page = 3239
+loc_mult = pow(30, length_of_page)
 
 #29 output letters: alphabet plus comma, space, and period
 #alphanumeric in hex address (base 36): 3260
@@ -54,12 +55,10 @@ def search(search_str):
         front_padding += digs[int(random.random()*len(digs))]
     #making random padding that goes after the text
     back_padding = ''
-    for x in xrange(length_of_page-(len(front_padding)+len(search_str))):
+    for x in xrange(length_of_page-(depth+len(search_str))):
         back_padding += digs[int(random.random()*len(digs))]
     search_str = front_padding + search_str + back_padding
-    assert len(search_str) == length_of_page
-    hex_addr = int2base(stringToNumber(search_str), 36) #change to base 36
-    hex_addr = int2base(int(hex_addr, 36)+loc_int, 36) #add loc_int and put back to string
+    hex_addr = int2base(stringToNumber(search_str)+(loc_int*loc_mult), 36) #change to base 36 and add loc_int, then make string
     key_str = hex_addr + ':' + wall + ':' + shelf + ':' + volume + ':' + page
     #key_str = hex_addr + ':0:0:0:0'
     page_text = getPage(key_str)
@@ -72,12 +71,19 @@ def getPage(address):
     page = page.zfill(3)
     loc_int = int(page+volume+shelf+wall)
     key = int(hex_addr, 36)
-    key -= loc_int
+    key -= loc_int*loc_mult
     str_36 = int2base(key, 36)
     an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    while len(str_36) < 3260:
-        str_36 += '0'
-    return toText(int(str_36, 36))[-length_of_page:]
+    result = toText(int(str_36, 36))
+    if len(result) < length_of_page:
+        #adding pseudorandom chars
+        random.seed(result)
+        digs = 'abcdefghijklmnopqrstuvwxyz, .'
+        while len(result) < length_of_page:
+            result += digs[int(random.random()*len(digs))]
+    elif len(result) > length_of_page:
+        result = result[-length_of_page:]
+    return result
 
 def toText(x):
     digs = 'abcdefghijklmnopqrstuvwxyz, .'
