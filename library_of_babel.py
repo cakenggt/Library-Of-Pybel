@@ -1,7 +1,6 @@
 import math
 import string
 import random
-from Tkinter import Tk
 
 length_of_page = 3469
 
@@ -51,12 +50,6 @@ def main():
             #key_str = hex_addr + ':' + wall + ':' + shelf + ':' + volume + ':' + page
             key_str = hex_addr + ':0:0:0:0'
             print('\n'+getPage(key_str)+'\n@'+key_str+'\n')
-            #copies key into clipboard
-            r = Tk()
-            r.withdraw()
-            r.clipboard_clear()
-            r.clipboard_append(key_str)
-            r.destroy()
         if input_str.startswith('quit'):
             return
 
