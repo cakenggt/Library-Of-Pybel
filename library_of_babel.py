@@ -4,7 +4,6 @@ import random
 
 length_of_page = 3469
 
-
 #29 output letters: alphabet plus comma, space, and period
 #alphanumeric in hex address (base 36): 3260
 #in wall: 4
@@ -20,6 +19,8 @@ def test():
     assert 'hello kitty' == toText(int(int2base(stringToNumber('hello kitty'), 36), 36))
     assert int2base(4, 36) == '4', int2base(4, 36)
     assert int2base(10, 36) == 'A', int2base(10, 36)
+    test_string = '.................................................'
+    assert test_string in getPage(search(test_string))
     print 'Tests completed'
 
 def main():
@@ -30,47 +31,52 @@ def main():
             print('\n'+getPage(key_str)+'\n')
         if input_str.startswith('search'):
             search_str = ' '.join(input_str.split(' ')[1:])
-            wall = str(int(random.random()*4))
-            shelf = str(int(random.random()*5))
-            volume = str(int(random.random()*32))
-            page = str(int(random.random()*410))
-            an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-            digs = 'abcdefghijklmnopqrstuvwxyz, .'
-            hex_addr = ''
-            depth = int(random.random()*(length_of_page-len(search_str)))
-            front_padding = ''
-            for x in xrange(depth):
-                front_padding += digs[int(random.random()*len(digs))]
-            back_padding = ''
-            for x in xrange(length_of_page-(len(front_padding)+len(search_str))):
-                back_padding += digs[int(random.random()*len(digs))]
-            search_str = front_padding + search_str + back_padding
-            number_search = stringToNumber(search_str)
-            hex_addr = int2base(number_search, 36)
-            #key_str = hex_addr + ':' + wall + ':' + shelf + ':' + volume + ':' + page
-            key_str = hex_addr + ':0:0:0:0'
+            key_str = search(search_str)
             print('\n'+getPage(key_str)+'\n@'+key_str+'\n')
         if input_str.startswith('quit'):
             return
+
+def search(search_str):
+    wall = str(int(random.random()*4))
+    shelf = str(int(random.random()*5))
+    volume = str(int(random.random()*32)).zfill(2)
+    page = str(int(random.random()*410)).zfill(3)
+    #the string made up of all of the location numbers
+    loc_str = page + volume + shelf + wall
+    loc_int = int(loc_str) #make integer
+    an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digs = 'abcdefghijklmnopqrstuvwxyz, .'
+    hex_addr = ''
+    depth = int(random.random()*(length_of_page-len(search_str)))
+    #random padding that goes before the text
+    front_padding = ''
+    for x in xrange(depth):
+        front_padding += digs[int(random.random()*len(digs))]
+    #making random padding that goes after the text
+    back_padding = ''
+    for x in xrange(length_of_page-(len(front_padding)+len(search_str))):
+        back_padding += digs[int(random.random()*len(digs))]
+    search_str = front_padding + search_str + back_padding
+    assert len(search_str) == length_of_page
+    hex_addr = int2base(stringToNumber(search_str), 36) #change to base 36
+    hex_addr = int2base(int(hex_addr, 36)+loc_int, 36) #add loc_int and put back to string
+    key_str = hex_addr + ':' + wall + ':' + shelf + ':' + volume + ':' + page
+    #key_str = hex_addr + ':0:0:0:0'
+    page_text = getPage(key_str)
+    assert page_text == search_str, '\npage text:\n'+page_text+'\nstrings:\n'+search_str
+    return key_str
 
 def getPage(address):
     hex_addr, wall, shelf, volume, page = address.split(':')
     volume = volume.zfill(2)
     page = page.zfill(3)
-    key_str = page + volume + shelf + wall + hex_addr
-    key = int(key_str, 36)
+    loc_int = int(page+volume+shelf+wall)
+    key = int(hex_addr, 36)
+    key -= loc_int
     str_36 = int2base(key, 36)
     an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     while len(str_36) < 3260:
-        mult = pow(29, 3260 - len(str_36))
-        key *= mult
-        addition = ''
-        mult_len = len(int2base(mult, 36))
-        for x in xrange(mult_len-1):
-            addition += an[int(random.random()*len(an))]
-        if addition != '':
-            key += int(addition, 36)
-        str_36 = int2base(key, 36)
+        str_36 += '0'
     return toText(int(str_36, 36))[-length_of_page:]
 
 def toText(x):
