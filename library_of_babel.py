@@ -36,8 +36,11 @@ def main(input_array):
         search_str = ' '.join(input_array[2:])
         key_str = search(search_str)
         print('\nPage which includes this text:\n'
-        +getPage(key_str)+'\n\n@ address '+key_str+'\n'
-        +'\nTitle which contains this text:\n@ address '
+        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
+        only_key_str = search(search_str.ljust(length_of_page))
+        print('\nPage which contains only this text:\n'
+        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
+        print('\nTitle which contains this text:\n@ address '
         +searchTitle(search_str))
     if input_array[1] == 'test':
         test()
