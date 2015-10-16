@@ -1,4 +1,4 @@
-length_of_page = 3239;
+length_of_page = 3200;
 loc_mult = Math.pow(30, length_of_page);//TODO evaluates to infinity
 
 Math.seed = 6;
@@ -36,16 +36,26 @@ Number.prototype.mod = function(n) {
     return ((this%n)+n)%n;
 };
 
+function chunk(str, n) {
+  var ret = [];
+  var i;
+  var len;
+  for(i = 0, len = str.length; i < len; i += n) {
+    ret.push(str.substr(i, n))
+  }
+  return ret
+};
+
 an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 //digs must be the same length as an
 digs = 'abcdefghijklmnopqrstuvwxyz, .aeiouy ';
 
 function search(search_str){
   //randomly generate location numbers
-  wall = ''+parseInt(Math.random()*4)
-  shelf = ''+parseInt(Math.random()*5)
-  volume = (''+parseInt(Math.random()*32)).pad(2)
-  page = (''+parseInt(Math.random()*410)).pad(3)
+  wall = ''+parseInt(Math.random()*3+1)
+  shelf = ''+parseInt(Math.random()*4+1)
+  volume = (''+parseInt(Math.random()*31+1)).pad(2)
+  page = (''+parseInt(Math.random()*409+1)).pad(3)
   locHash = (wall+shelf+volume+page).hashCode();
   hex = '';
   depth = parseInt(Math.random()*(length_of_page-search_str.length));
@@ -92,3 +102,65 @@ function getPage(address){
   }
   return result;
 }
+
+function populateSelect(){
+  wall = $('#wall');
+  for (var x = 1; x < 5; x++){
+    wall.append($("<option></option>")
+         .attr("value",x)
+         .text(x));
+  }
+  shelf = $('#shelf');
+  for (var x = 1; x < 6; x++){
+    shelf.append($("<option></option>")
+         .attr("value",x)
+         .text(x));
+  }
+  volume = $('#volume');
+  for (var x = 1; x < 33; x++){
+    volume.append($("<option></option>")
+         .attr("value",x)
+         .text(x));
+  }
+  page = $('#page');
+  for (var x = 1; x < 411; x++){
+    page.append($("<option></option>")
+         .attr("value",x)
+         .text(x));
+  }
+}
+
+function loadPage(address){
+  if (address.split(':')[0]){
+    $('#result').text(chunk(
+      getPage(address), 80).join('\n'));
+  }
+  else{
+    alert('You must select a hex value')
+  }
+}
+
+$(function(){
+  populateSelect();
+  if (window.location.hash){
+    address = window.location.hash.substr(1)
+    loadPage(address);
+    addressArray = address.split(':');
+    $('#hex').val(addressArray[0]);
+    $('#wall').val(addressArray[1]);
+    $('#shelf').val(addressArray[2]);
+    $('#volume').val(addressArray[3]);
+    $('#page').val(addressArray[4]);
+  }
+
+  $('#read').on('click', function(){
+    hex = $('#hex').val().toUpperCase();
+    wall = $('#wall').val();
+    shelf = $('#shelf').val();
+    volume = $('#volume').val();
+    page = $('#page').val();
+    address = hex+':'+wall+':'+shelf+':'+volume+':'+page;
+    loadPage(address);
+    window.location.hash = '#'+address;
+  });
+});
