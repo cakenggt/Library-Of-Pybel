@@ -191,7 +191,7 @@ function loadPage(address){
 }
 
 function makeLink(address){
-  link = '<a href="'+window.document.location.pathname+'#'+address+'">';
+  link = '<a href="'+window.document.location.pathname+'?uid='+parseInt(Math.random()*100)+'#'+address+'">';
   if (address.length > length_of_link-3){
     link += address.substr(0, 30);
     link += '...';
@@ -203,8 +203,6 @@ function makeLink(address){
   link += '</a>';
   return link;
 }
-
-console.log('refresh')
 
 $(function(){
   populateSelect();
