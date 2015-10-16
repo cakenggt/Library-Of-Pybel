@@ -229,7 +229,7 @@ $(function(){
   });
 
   $('#search').on('click', function(){
-    search_str = $('#search_str').val();
+    search_str = $('#search_str').val().replace(/[-\/#!$%\^&\*;:{}=\-_`~()]/g,"").toLowerCase();
     exact_match_text = search_str;
     while (exact_match_text.length < length_of_page){
       exact_match_text += ' ';
