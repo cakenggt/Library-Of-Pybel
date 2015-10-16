@@ -1,4 +1,6 @@
 length_of_page = 3200;
+length_of_title = 25;
+length_of_link = 43;
 loc_mult = Math.pow(30, length_of_page);//TODO evaluates to infinity
 
 Math.seed = 6;
@@ -100,7 +102,54 @@ function getPage(address){
     index = parseInt(Math.seededRandom(0, digs.length));
     result += digs[index];
   }
-  return result;
+  return result.substr(result.length-length_of_page);
+}
+
+function getTitle(address){
+  addressArray = address.split(':');
+  hex = addressArray[0];
+  locHash = (addressArray[1]+addressArray[2]+
+    addressArray[3].pad(2)+4).hashCode();
+  Math.seed = Math.abs(locHash);
+  result = '';
+  for (var i = 0; i < hex.length; i++){
+    index = an.indexOf(hex[i]);
+    rand = Math.seededRandom(0, an.length);
+    newIndex = (index-parseInt(rand)).mod(digs.length);
+    newChar = digs[newIndex];
+    result += newChar;
+  }
+  Math.seed = Math.abs(result.hashCode());
+  while (result.length < length_of_title){
+    index = parseInt(Math.seededRandom(0, digs.length));
+    result += digs[index];
+  }
+  return result.substr(result.length-length_of_title);
+}
+
+function searchTitle(search_str){
+  //randomly generate location numbers
+  wall = ''+parseInt(Math.random()*3+1)
+  shelf = ''+parseInt(Math.random()*4+1)
+  volume = (''+parseInt(Math.random()*31+1)).pad(2)
+  locHash = (wall+shelf+volume+4).hashCode();
+  hex = '';
+  search_str = search_str.substr(0, length_of_title);
+  while (search_str.length < length_of_title){
+    search_str += ' ';
+  }
+  //hash of loc will be used to create a seeded RNG
+  Math.seed = Math.abs(locHash);
+  for (var i = 0; i < search_str.length; i++){
+    index = digs.indexOf(search_str[i]);
+    //for each calculated value of the rng, it will be added to the index value and modded to len of an
+    rand = Math.seededRandom(0, digs.length);
+    newIndex = (index+parseInt(rand)).mod(an.length);
+    newChar = an[newIndex];
+    //hex will be built from the indexes translated into an
+    hex += newChar;
+  }
+  return hex+':'+wall+':'+shelf+':'+parseInt(volume)
 }
 
 function populateSelect(){
@@ -134,11 +183,28 @@ function loadPage(address){
   if (address.split(':')[0]){
     $('#result').text(chunk(
       getPage(address), 80).join('\n'));
+    $('#title').text(getTitle(address));
   }
   else{
     alert('You must select a hex value')
   }
 }
+
+function makeLink(address){
+  link = '<a href="'+window.document.location.pathname+'#'+address+'">';
+  if (address.length > length_of_link-3){
+    link += address.substr(0, 30);
+    link += '...';
+    link += address.substr(address.length-10);
+  }
+  else{
+    link += address;
+  }
+  link += '</a>';
+  return link;
+}
+
+console.log('refresh')
 
 $(function(){
   populateSelect();
@@ -163,4 +229,23 @@ $(function(){
     loadPage(address);
     window.location.hash = '#'+address;
   });
+
+  $('#search').on('click', function(){
+    search_str = $('#search_str').val();
+    exact_match_text = search_str;
+    while (exact_match_text.length < length_of_page){
+      exact_match_text += ' ';
+    }
+    exact_match = search(exact_match_text);
+    rand_char = search(search_str);
+    title_search = searchTitle(search_str);
+    $('#search_results').html(
+      'exact match:<br>'+
+      makeLink(exact_match)+
+      '<br>with random characters<br>'+
+      makeLink(rand_char)+
+      '<br>title search<br>'+
+      makeLink(title_search+':1')
+    );
+  })
 });
