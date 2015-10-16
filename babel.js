@@ -26,129 +26,28 @@ String.prototype.hashCode = function() {
   return hash;
 };
 
-
-function int2base(x, base){
-  digs = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  if (x < 0){
-    sign = -1;
-  }
-  else if (x == 0){
-    return digs[0];
-  }
-  else{
-    sign = 1;
-  }
-  x = x*sign;
-  digits = [];
-  while (x){
-      digits.push(digs[x % base]);
-      x = parseInt(x/base);
-    }
-  if (sign < 0){
-    digits.push('-');
-  }
-  digits.reverse();
-  return digits.join('');
+String.prototype.pad = function(size) {
+  s = this;
+  while (s.length < size) s = "0"+s;
+  return s;
 }
 
-function stringToNumber(iString){
-  digs = 'abcdefghijklmnopqrstuvwxyz, .';
-  result = new BigNumber(0);
-  for (var x = 0; x < iString.length; x++){
-    exp = new BigNumber(29).pow(x)
-    result = result.add(exp.mul(digs.indexOf(iString[iString.length-x-1])));
-  }
-  return result;
-}
+an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+digs = 'abcdefghijklmnopqrstuvwxyz, .';
 
-function toText(x){
-  digs = 'abcdefghijklmnopqrstuvwxyz, .'
-  if (x < 0){
-    sign = -1;
-  }
-  else if (x == 0){
-    return digs[0];
-  }
-  else{
-    sign = 1;
-  }
-  x = x*sign;
-  digits = [];
-  while (x){
-      digits.push(digs[x % 29]);
-      x = parseInt(x/29);
-    }
-  if (sign < 0){
-    digits.push('-');
-  }
-  digits.reverse();
-  return digits.join('');
+function search(search_str){
+  //TODO do this function
 }
 
 function getPage(address){
-  items = address.split(':');
-  hex_addr = items[0];
-  wall = items[1];
-  shelf = items[2];
-  volume = zfill(items[3], 2);
-  page = zfill(items[4], 3);
-  loc_int = parseInt(page+volume+shelf+wall);
-  key = parseInt(hex_addr, 36);
-  key -= loc_int*loc_mult;
-  str_36 = int2base(key, 36);
-  an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  result = toText(parseInt(str_36, 36));
-  if (result.length < length_of_page){
-    //adding pseudorandom chars
-    Math.seed = result.hashCode();
-    digs = 'abcdefghijklmnopqrstuvwxyz, .'
-    while (result.length < length_of_page){
-      result += digs[parseInt(Math.seededRandom(0, digs.length))];
-    }
-  }
-  else if (result.length > length_of_page){
-    //TODO fix this
-    result = result.slice(-length_of_page);
-  }
-  return result;
-}
+  //for each char of hex, it will be turned into the index value in an
+  addressArray = address.split(':');
+  hex = addressArray[0];
+  locHash = (addressArray[1]+addressArray[2]+
+    addressArray[3].pad(2)+addressArray[4].pad(3)).hashCode();
 
-function zfill(item, length){
-  result = item;
-  while(result.length < length){
-    result = '0'+result;
-  }
-  return result
+  //hash of loc will be used to create a seeded RNG
+  //for each calculated value of the rng, it will be subtracted from the index value and modded to len of digs
+  //document will be built from the indexes translated into digs
+  //any leftover space will be filled with random numbers seeded by the hash of the result so far
 }
-
-function search(search_str){
-  wall = ''+parseInt(Math.random()*4);
-  shelf = ''+parseInt(Math.random()*5);
-  volume = zfill(''+parseInt(Math.random()*32), 2);
-  page = zfill(''+parseInt(Math.random()*410), 3);
-  //the string made up of all of the location numbers
-  loc_str = page + volume + shelf + wall;
-  loc_int = parseInt(loc_str) //make integer;
-  an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  digs = 'abcdefghijklmnopqrstuvwxyz, .';
-  hex_addr = '';
-  depth = parseInt(Math.random()*(length_of_page-search_str.length));
-  //random padding that goes before the text;
-  front_padding = '';
-  for (var x = 0; x < depth; x++){
-    front_padding += digs[parseInt(Math.random()*digs.length)];
-  }
-  //making random padding that goes after the text
-  back_padding = '';
-  for (var y = 0; y < length_of_page-(depth+search_str.length); y++){
-    back_padding += digs[parseInt(Math.random()*digs.length)];
-  }
-  search_str = front_padding + search_str + back_padding;
-  hex_addr = int2base(stringToNumber(search_str)+(loc_int*loc_mult), 36); //change to base 36 and add loc_int, then make string
-  key_str = hex_addr + ':' + wall + ':' + shelf + ':' + volume + ':' + page;
-  page_text = getPage(key_str);
-  return key_str;
-}
-
-//TODO Add search, and main
-//TODO search doesn't work, big number evaluates to infinity. This will affect getPage too. Use bigNumber.js downloaded
