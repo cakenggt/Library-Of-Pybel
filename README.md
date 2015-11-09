@@ -2,6 +2,9 @@
 ## About
 This is an open source python implementation of the [Library of Babel](libraryofbabel.info).
 ## Functionality
+### Javascript Implementation
+The Javascript implementation of the Library of Babel can be found [here](https://cakenggt.github.io/Library-Of-Pybel/). The text and addresses generated will not be the same between the Python implementation and this one. The source code for this JS implementation is hosted in the gh-pages branch. There is a search box and an address selector.
+### Python Implementation
 *Note: all numbers are started at 0, not 1. To find the first page of a book, look for page 0*
 
 Address format: `Hex_Value`:`Wall`:`Shelf`:`Volume`:`Page`
