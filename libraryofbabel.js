@@ -1,9 +1,7 @@
 (function(exports) {
 
-  LibraryOfBabel = {};
-
-  LibraryOfBabel.length_of_page = 3200;
-  LibraryOfBabel.length_of_title = 25;
+  exports.length_of_page = 3200;
+  exports.length_of_title = 25;
 
   seed = 6;
 
@@ -43,7 +41,7 @@
   //digs must be the same length as an
   digs = 'abcdefghijklmnopqrstuvwxyz, .aeiouy ';
 
-  LibraryOfBabel.search = function(search_str){
+  exports.search = function(search_str){
     //randomly generate location numbers
     wall = ''+parseInt(Math.random()*3+1)
     shelf = ''+parseInt(Math.random()*4+1)
@@ -51,7 +49,7 @@
     page = pad(''+parseInt(Math.random()*409+1), 3)
     locHash = hashCode((wall+shelf+volume+page));
     hex = '';
-    depth = parseInt(Math.random()*(LibraryOfBabel.length_of_page-search_str.length));
+    depth = parseInt(Math.random()*(exports.length_of_page-search_str.length));
     for (var x = 0; x < depth; x++){
       search_str = digs[parseInt(Math.random()*digs.length)] + search_str;
     }
@@ -69,7 +67,7 @@
     return hex+':'+wall+':'+shelf+':'+parseInt(volume)+':'+parseInt(page)
   }
 
-  LibraryOfBabel.getPage = function(address){
+  exports.getPage = function(address){
     //for each char of hex, it will be turned into the index value in the an string
     addressArray = address.split(':');
     hex = addressArray[0];
@@ -89,14 +87,14 @@
     }
     //any leftover space will be filled with random numbers seeded by the hash of the result so far
     seed = Math.abs(hashCode(result));
-    while (result.length < LibraryOfBabel.length_of_page){
+    while (result.length < exports.length_of_page){
       index = parseInt(seededRandom(0, digs.length));
       result += digs[index];
     }
-    return result.substr(result.length-LibraryOfBabel.length_of_page);
+    return result.substr(result.length-exports.length_of_page);
   }
 
-  LibraryOfBabel.getTitle = function(address){
+  exports.getTitle = function(address){
     addressArray = address.split(':');
     hex = addressArray[0];
     locHash = hashCode(addressArray[1]+addressArray[2]+
@@ -111,22 +109,22 @@
       result += newChar;
     }
     seed = Math.abs(hashCode(result));
-    while (result.length < LibraryOfBabel.length_of_title){
+    while (result.length < exports.length_of_title){
       index = parseInt(seededRandom(0, digs.length));
       result += digs[index];
     }
-    return result.substr(result.length-LibraryOfBabel.length_of_title);
+    return result.substr(result.length-exports.length_of_title);
   }
 
-  LibraryOfBabel.searchTitle = function(search_str){
+  exports.searchTitle = function(search_str){
     //randomly generate location numbers
     wall = ''+parseInt(Math.random()*3+1)
     shelf = ''+parseInt(Math.random()*4+1)
     volume = pad(''+parseInt(Math.random()*31+1), 2)
     locHash = hashCode(wall+shelf+volume+4);
     hex = '';
-    search_str = search_str.substr(0, LibraryOfBabel.length_of_title);
-    while (search_str.length < LibraryOfBabel.length_of_title){
+    search_str = search_str.substr(0, exports.length_of_title);
+    while (search_str.length < exports.length_of_title){
       search_str += ' ';
     }
     //hash of loc will be used to create a seeded RNG
@@ -143,5 +141,4 @@
     return hex+':'+wall+':'+shelf+':'+parseInt(volume)
   }
 
-  exports.LibraryOfBabel = LibraryOfBabel;
-})(typeof exports !== 'undefined' ? exports : this);
+})(typeof exports === 'undefined'? this['LibraryOfBabel']={}: exports);
