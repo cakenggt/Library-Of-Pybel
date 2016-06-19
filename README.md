@@ -19,8 +19,8 @@ Run the file from the command line with an action argument. The following argume
   * Page contains: Finds a page which contains the text.
   * Page only contains: Finds a page which only contains that text and nothing else.
   * Title match: Finds a title which is exactly this string. *For a title match, it will only match the first 25 characters. Addresses returned for title matches will need to have a page number added to the tail end, since they lack this.*
-* `fsearch <file>`  Does exactly the search does, but with text in the file
-* `help` Prints help message
+* `fsearch <file>`  Does exactly the search does, but with text in the file.
+* `help` Prints help message.
 
 ## Explanation
 What was needed for this project was a way to generate seemingly random pages in a near-infinite address space which could also be searched for specific strings.
