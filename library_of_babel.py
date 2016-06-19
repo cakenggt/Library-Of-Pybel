@@ -16,6 +16,20 @@ title_mult = pow(30, 25)
 #letters per page: 3239
 #titles have 25 char
 
+
+def text_prep(text):
+    prepared = ''
+    digs = 'abcdefghijklmnopqrstuvwxyz, .'
+    for letter in text:
+        if letter in digs:
+            prepared += letter
+        elif letter.lower() in digs:
+            prepared += digs[digs.index(letter.lower())]
+        elif letter == '\n':
+            prepared += ' '
+    return prepared
+
+
 def test():
     assert stringToNumber('a') == 0, stringToNumber('a')
     assert stringToNumber('ba') == 29, stringToNumber('ba')
@@ -25,7 +39,7 @@ def test():
     assert int2base(10, 36) == 'A', int2base(10, 36)
     test_string = '.................................................'
     assert test_string in getPage(search(test_string))
-    print 'Tests completed'
+    print ('Tests completed')
 
 def main(input_array):
     if input_array[1] == 'checkout':
@@ -33,7 +47,7 @@ def main(input_array):
         print('\nTitle: '+getTitle(key_str))
         print('\n'+getPage(key_str)+'\n')
     if input_array[1] == 'search':
-        search_str = ' '.join(input_array[2:])
+        search_str = text_prep(' '.join(input_array[2:]))
         key_str = search(search_str)
         print('\nPage which includes this text:\n'
         +getPage(key_str)+'\n\n@ address '+key_str+'\n')
@@ -44,7 +58,19 @@ def main(input_array):
         +searchTitle(search_str))
     if input_array[1] == 'test':
         test()
-
+    if input_array[1] == 'fsearch':
+        with open(input_array[2], 'r') as f:
+            lines = ''.join([line for line in f.readlines() if line is not'\n'])
+        search_str = text_prep(lines)
+        key_str = search(search_str)
+        print('\nPage which includes this text:\n'
+        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
+        only_key_str = search(search_str.ljust(length_of_page))
+        print('\nPage which contains only this text:\n'
+        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
+        print('\nTitle which contains this text:\n@ address '
+        +searchTitle(search_str))
+        
 def search(search_str):
     wall = str(int(random.random()*4))
     shelf = str(int(random.random()*5))
@@ -59,11 +85,11 @@ def search(search_str):
     depth = int(random.random()*(length_of_page-len(search_str)))
     #random padding that goes before the text
     front_padding = ''
-    for x in xrange(depth):
+    for x in range(depth):
         front_padding += digs[int(random.random()*len(digs))]
     #making random padding that goes after the text
     back_padding = ''
-    for x in xrange(length_of_page-(depth+len(search_str))):
+    for x in range(length_of_page-(depth+len(search_str))):
         back_padding += digs[int(random.random()*len(digs))]
     search_str = front_padding + search_str + back_padding
     hex_addr = int2base(stringToNumber(search_str)+(loc_int*loc_mult), 36) #change to base 36 and add loc_int, then make string
@@ -144,7 +170,7 @@ def toText(x):
 def stringToNumber(iString):
     digs = 'abcdefghijklmnopqrstuvwxyz, .'
     result = 0
-    for x in xrange(len(iString)):
+    for x in range(len(iString)):
         result += digs.index(iString[len(iString)-x-1])*pow(29,x)
     return result
 
