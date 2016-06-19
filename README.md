@@ -22,8 +22,6 @@ Run the file from the command line with an action argument. The following argume
 * `fsearch <file>`  Does exactly the search does, but with text in the file
 * `help` Prints help message
 
-help -- Prints this message
-
 ## Explanation
 What was needed for this project was a way to generate seemingly random pages in a near-infinite address space which could also be searched for specific strings.
 
