@@ -30,7 +30,7 @@ help -- Prints this message        '''
 
 
 def text_prep(text):
-    digs = 'abcdefghijklmnopqrstuvwxyz, .'
+    digs = set('abcdefghijklmnopqrstuvwxyz, .')
     prepared = ''
     for letter in text:
         if letter in digs:
@@ -53,41 +53,77 @@ def test():
     assert test_string in getPage(search(test_string))
     print ('Tests completed')
 
-def main(input_array):
-    if len(input_array) > 1:
-        if input_array[1] == 'checkout':
-            key_str = input_array[2]
-            print('\nTitle: '+getTitle(key_str))
-            print('\n'+getPage(key_str)+'\n')
-        if input_array[1] == 'search':
-            search_str = text_prep(' '.join(input_array[2:]))
-            key_str = search(search_str)
-            print('\nPage which includes this text:\n'
-            +getPage(key_str)+'\n\n@ address '+key_str+'\n')
-            only_key_str = search(search_str.ljust(length_of_page))
-            print('\nPage which contains only this text:\n'
-            +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
-            print('\nTitle which contains this text:\n@ address '
-            +searchTitle(search_str))
-        if input_array[1] == 'test':
-            test()
-        if input_array[1] == 'fsearch':
-            with open(input_array[2], 'r') as f:
-                lines = ''.join([line for line in f.readlines() if line is not'\n'])
-            search_str = text_prep(lines)
-            key_str = search(search_str)
-            print('\nPage which includes this text:\n'
-            +getPage(key_str)+'\n\n@ address '+key_str+'\n')
-            only_key_str = search(search_str.ljust(length_of_page))
-            print('\nPage which contains only this text:\n'
-            +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
-            print('\nTitle which contains this text:\n@ address '
-            +searchTitle(search_str))
-        else:
-            print(help_text)
-    elif len(input_array) == 1:
-        print(help_text)
+def main_filed(input_array):
+    if input_array[1] == 'checkout':
+        key_str = input_array[2]
+        text  ='\nTitle: '+getTitle(key_str) + '\n'+getPage(key_str)+'\n'
+        with open(input_array[4], 'w') as file:
+            file.writelines(text)
+    if input_array[1] == 'search':
+        search_str = text_prep(' '.join(input_array[2:]))
+        key_str = search(search_str)
+        text1 = '\nPage which includes this text:\n' + getPage(key_str)+'\n\n@ address '+key_str+'\n'
+        only_key_str = search(search_str.ljust(length_of_page))
+        text2 = '\nPage which contains only this text:\n'+ getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n'
+        text3 = '\nTitle which contains this text:\n@ address '+ searchTitle(search_str)
+        text = text1 + text2 + text3
+        with open(input_array[4], 'w') as file:
+            file.writelines(text)
+    if input_array[1] == 'test':
+        test()
+    if input_array[1] == 'fsearch':
+        with open(input_array[2], 'r') as f:
+            lines = ''.join([line for line in f.readlines() if line is not'\n'])
+        search_str = text_prep(lines)
+        key_str = search(search_str)
+        print('\nPage which includes this text:\n'
+        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
+        only_key_str = search(search_str.ljust(length_of_page))
+        print('\nPage which contains only this text:\n'
+        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
+        print('\nTitle which contains this text:\n@ address '
+        +searchTitle(search_str))
+
+
+def main_stdout(input_array):
+    if input_array[1] == 'checkout':
+        key_str = input_array[2]
+        print('\nTitle: '+getTitle(key_str))
+        print('\n'+getPage(key_str)+'\n')
+    if input_array[1] == 'search':
+        search_str = text_prep(' '.join(input_array[2:]))
+        key_str = search(search_str)
+        print('\nPage which includes this text:\n'
+        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
+        only_key_str = search(search_str.ljust(length_of_page))
+        print('\nPage which contains only this text:\n'
+        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
+        print('\nTitle which contains this text:\n@ address '
+        +searchTitle(search_str))
+    if input_array[1] == 'test':
+        test()
+    if input_array[1] == 'fsearch':
+        with open(input_array[2], 'r') as f:
+            lines = ''.join([line for line in f.readlines() if line is not'\n'])
+        search_str = text_prep(lines)
+        key_str = search(search_str)
+        print('\nPage which includes this text:\n'
+        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
+        only_key_str = search(search_str.ljust(length_of_page))
+        print('\nPage which contains only this text:\n'
+        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
+        print('\nTitle which contains this text:\n@ address '
+        +searchTitle(search_str))
+
         
+def main(input_array):
+    if len(input_array) == 5 and input_array[3] == 'file'\
+        and input_array[1] in ['checkout', 'search', 'test', 'fsearch']:
+        main_filed(input_array)
+    elif len(input_array) == 3 and input_array[1] in ['checkout', 'search', 'test', 'fsearch']:
+        main_stdout(input_array)
+    else:
+        print(help_text)
         
 def search(search_str):
     wall = str(int(random.random()*4))
@@ -103,11 +139,11 @@ def search(search_str):
     depth = int(random.random()*(length_of_page-len(search_str)))
     #random padding that goes before the text
     front_padding = ''
-    for x in range(depth):
+    for x in xrange(depth):
         front_padding += digs[int(random.random()*len(digs))]
     #making random padding that goes after the text
     back_padding = ''
-    for x in range(length_of_page-(depth+len(search_str))):
+    for x in xrange(length_of_page-(depth+len(search_str))):
         back_padding += digs[int(random.random()*len(digs))]
     search_str = front_padding + search_str + back_padding
     hex_addr = int2base(stringToNumber(search_str)+(loc_int*loc_mult), 36) #change to base 36 and add loc_int, then make string
@@ -188,7 +224,7 @@ def toText(x):
 def stringToNumber(iString):
     digs = 'abcdefghijklmnopqrstuvwxyz, .'
     result = 0
-    for x in range(len(iString)):
+    for x in xrange(len(iString)):
         result += digs.index(iString[len(iString)-x-1])*pow(29,x)
     return result
 
