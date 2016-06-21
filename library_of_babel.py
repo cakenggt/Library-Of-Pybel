@@ -1,9 +1,11 @@
 import math
 import string
 import random
+import sys
 
 length_of_page = 3239
 loc_mult = pow(30, length_of_page)
+title_mult = pow(30, 25)
 
 #29 output letters: alphabet plus comma, space, and period
 #alphanumeric in hex address (base 36): 3260
@@ -12,6 +14,7 @@ loc_mult = pow(30, length_of_page)
 #in volumes: 32
 #pages: 410
 #letters per page: 3239
+#titles have 25 char
 
 def test():
     assert stringToNumber('a') == 0, stringToNumber('a')
@@ -24,20 +27,23 @@ def test():
     assert test_string in getPage(search(test_string))
     print 'Tests completed'
 
-def main():
-    while True:
-        input_str = raw_input('press key\n')
-        if input_str.startswith('checkout'):
-            key_str = input_str.split(' ')[1]
-            print('\n'+getPage(key_str)+'\n')
-        if input_str.startswith('search'):
-            search_str = ' '.join(input_str.split(' ')[1:])
-            key_str = search(search_str)
-            print('\n'+getPage(key_str)+'\n@'+key_str+'\n')
-        if input_str.startswith('test'):
-            test()
-        if input_str.startswith('quit'):
-            return
+def main(input_array):
+    if input_array[1] == 'checkout':
+        key_str = input_array[2]
+        print('\nTitle: '+getTitle(key_str))
+        print('\n'+getPage(key_str)+'\n')
+    if input_array[1] == 'search':
+        search_str = ' '.join(input_array[2:])
+        key_str = search(search_str)
+        print('\nPage which includes this text:\n'
+        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
+        only_key_str = search(search_str.ljust(length_of_page))
+        print('\nPage which contains only this text:\n'
+        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
+        print('\nTitle which contains this text:\n@ address '
+        +searchTitle(search_str))
+    if input_array[1] == 'test':
+        test()
 
 def search(search_str):
     wall = str(int(random.random()*4))
@@ -66,6 +72,41 @@ def search(search_str):
     assert page_text == search_str, '\npage text:\n'+page_text+'\nstrings:\n'+search_str
     return key_str
 
+def getTitle(address):
+    addressArray = address.split(':')
+    hex_addr = addressArray[0]
+    wall = addressArray[1]
+    shelf = addressArray[2]
+    volume = addressArray[3].zfill(2)
+    loc_int = int(volume+shelf+wall)
+    key = int(hex_addr, 36)
+    key -= loc_int*title_mult
+    str_36 = int2base(key, 36)
+    result = toText(int(str_36, 36))
+    if len(result) < 25:
+        #adding pseudorandom chars
+        random.seed(result)
+        digs = 'abcdefghijklmnopqrstuvwxyz, .'
+        while len(result) < 25:
+            result += digs[int(random.random()*len(digs))]
+    elif len(result) > 25:
+        result = result[-25:]
+    return result
+
+def searchTitle(search_str):
+    wall = str(int(random.random()*4))
+    shelf = str(int(random.random()*5))
+    volume = str(int(random.random()*32)).zfill(2)
+    #the string made up of all of the location numbers
+    loc_str = volume + shelf + wall
+    loc_int = int(loc_str) #make integer
+    hex_addr = ''
+    search_str = search_str[:25].ljust(25)
+    hex_addr = int2base(stringToNumber(search_str)+(loc_int*title_mult), 36) #change to base 36 and add loc_int, then make string
+    key_str = hex_addr + ':' + wall + ':' + shelf + ':' + volume
+    assert search_str == getTitle(key_str)
+    return key_str
+
 def getPage(address):
     hex_addr, wall, shelf, volume, page = address.split(':')
     volume = volume.zfill(2)
@@ -74,7 +115,6 @@ def getPage(address):
     key = int(hex_addr, 36)
     key -= loc_int*loc_mult
     str_36 = int2base(key, 36)
-    an = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     result = toText(int(str_36, 36))
     if len(result) < length_of_page:
         #adding pseudorandom chars
@@ -123,4 +163,5 @@ def int2base(x, base):
     digits.reverse()
     return ''.join(digits)
 
-main()
+if __name__ == "__main__":
+   main(sys.argv)
