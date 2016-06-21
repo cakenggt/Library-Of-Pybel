@@ -87,7 +87,7 @@ def getTitle(address):
         #adding pseudorandom chars
         random.seed(result)
         digs = 'abcdefghijklmnopqrstuvwxyz, .'
-        while len(result) < length_of_page:
+        while len(result) < 25:
             result += digs[int(random.random()*len(digs))]
     elif len(result) > 25:
         result = result[-25:]
