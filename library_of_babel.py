@@ -1,4 +1,3 @@
-import math
 import string
 import random
 import sys
@@ -17,16 +16,22 @@ title_mult = pow(30, 25)
 #titles have 25 char
 
 help_text = '''
-checkout <addr> -- Checks out a page of a book. Also displays the page's title.
+--checkout <addr> - Checks out a page of a book. Also displays the page's title.
 
-search <text> -- Does 3 searches for the text you input:
+--search <'text'> - Does 3 searches for the text you input:
 >Page contains: Finds a page which contains the text.
 >Page only contains: Finds a page which only contains that text and nothing else.
 >Title match: Finds a title which is exactly this string. For a title match, it will only match the first 25 characters. Addresses returned for title matches will need to have a page number added to the tail end, since they lack this.
+Mind the quotemarks.
 
-fsearch <file> -- Does exactly the search does, but with text in the file
+--fsearch <file> - Does exactly the search does, but with text in the file
 
-help -- Prints this message        '''
+--file <file> - Dump rusult into the file
+
+--help (or help, or nothing, or word salad) - Prints this message'''
+
+
+
 
 
 def text_prep(text):
@@ -36,11 +41,56 @@ def text_prep(text):
         if letter in digs:
             prepared += letter
         elif letter.lower() in digs:
-            prepared += digs[digs.index(letter.lower())]
+            prepared += letter.lower()
         elif letter == '\n':
             prepared += ' '
     return prepared
+    
+    
 
+def arg_check(input_array):
+    coms = {'--checkout': [0, None], 
+            '--search': [0, None],
+             '--test': [0, None], 
+             '--fsearch': [0, None], 
+             '--file': [0, None]}
+    try:
+        for argv in input_array[1:]:
+            if argv == '--checkout':
+                coms['--checkout'][0] = 1
+                coms['--checkout'][1] = input_array[input_array.index(argv) + 1]
+            if argv == '--search':
+                coms['--search'][0] = 1
+                coms['--search'][1] = input_array[input_array.index(argv) + 1]
+            if argv == '--test':
+                coms['--test'][0] = 1
+            if argv == '--fsearch':
+                coms['--fsearch'][0] = 1
+                coms['--fsearch'][1] = input_array[input_array.index(argv) + 1]
+            if argv == '--file':
+                coms['--file'][0] = 1
+                coms['--file'][1] = input_array[input_array.index(argv) + 1]
+        if input_array[1:] is not False or len(input_array) == 1:
+            in_coms = False
+            for inp in input_array[1:]:
+                if inp in coms:
+                    in_coms = True
+            if not in_coms:
+                print(help_text)
+    except Exception as e:
+        print('Due to \'' + str(e) + ' error\' read this:')
+        print(help_text)
+        sys.exit()
+    return coms
+
+    
+def filed(input_dict, text):
+    if input_dict['--file'][0]:
+        with open(input_dict['--file'][1], 'w') as file:
+            file.writelines(text)
+        print('\nFile '+ input_dict['--file'][1] + ' was writen')
+        
+        
 
 def test():
     assert stringToNumber('a') == 0, stringToNumber('a')
@@ -53,77 +103,39 @@ def test():
     assert test_string in getPage(search(test_string))
     print ('Tests completed')
 
-def main_filed(input_array):
-    if input_array[1] == 'checkout':
-        key_str = input_array[2]
+
+def main(input_dict):
+    if input_dict['--checkout'][0]:
+        key_str = input_dict['--checkout'][1]
         text  ='\nTitle: '+getTitle(key_str) + '\n'+getPage(key_str)+'\n'
-        with open(input_array[4], 'w') as file:
-            file.writelines(text)
-    if input_array[1] == 'search':
-        search_str = text_prep(' '.join(input_array[2:]))
-        key_str = search(search_str)
+        print(text)
+        filed(input_dict, text)
+    elif input_dict['--search'][0]:
+        search_str = text_prep(input_dict['--search'][1])
+        key_str = search(text_prep(search_str))
         text1 = '\nPage which includes this text:\n' + getPage(key_str)+'\n\n@ address '+key_str+'\n'
         only_key_str = search(search_str.ljust(length_of_page))
         text2 = '\nPage which contains only this text:\n'+ getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n'
         text3 = '\nTitle which contains this text:\n@ address '+ searchTitle(search_str)
         text = text1 + text2 + text3
-        with open(input_array[4], 'w') as file:
-            file.writelines(text)
-    if input_array[1] == 'test':
+        print(text)
+        filed(input_dict, text)
+    elif input_dict['--test'][0]:
         test()
-    if input_array[1] == 'fsearch':
-        with open(input_array[2], 'r') as f:
+    elif input_dict['--fsearch'][0]:
+        file = input_dict['--fsearch'][1]
+        with open(file, 'r') as f:
             lines = ''.join([line for line in f.readlines() if line is not'\n'])
         search_str = text_prep(lines)
         key_str = search(search_str)
-        print('\nPage which includes this text:\n'
-        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
+        text1 = '\nPage which includes this text:\n'+ getPage(key_str) +'\n\n@ address '+ key_str +'\n'
         only_key_str = search(search_str.ljust(length_of_page))
-        print('\nPage which contains only this text:\n'
-        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
-        print('\nTitle which contains this text:\n@ address '
-        +searchTitle(search_str))
-
-
-def main_stdout(input_array):
-    if input_array[1] == 'checkout':
-        key_str = input_array[2]
-        print('\nTitle: '+getTitle(key_str))
-        print('\n'+getPage(key_str)+'\n')
-    if input_array[1] == 'search':
-        search_str = text_prep(' '.join(input_array[2:]))
-        key_str = search(search_str)
-        print('\nPage which includes this text:\n'
-        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
-        only_key_str = search(search_str.ljust(length_of_page))
-        print('\nPage which contains only this text:\n'
-        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
-        print('\nTitle which contains this text:\n@ address '
-        +searchTitle(search_str))
-    if input_array[1] == 'test':
-        test()
-    if input_array[1] == 'fsearch':
-        with open(input_array[2], 'r') as f:
-            lines = ''.join([line for line in f.readlines() if line is not'\n'])
-        search_str = text_prep(lines)
-        key_str = search(search_str)
-        print('\nPage which includes this text:\n'
-        +getPage(key_str)+'\n\n@ address '+key_str+'\n')
-        only_key_str = search(search_str.ljust(length_of_page))
-        print('\nPage which contains only this text:\n'
-        +getPage(only_key_str)+'\n\n@ address '+only_key_str+'\n')
-        print('\nTitle which contains this text:\n@ address '
-        +searchTitle(search_str))
-
+        text2 = '\nPage which contains only this text:\n' + getPage(only_key_str) + '\n\n@ address '+ only_key_str +'\n'
+        text3 = '\nTitle which contains this text:\n@ address ' + searchTitle(search_str) +'\n'
+        text = text1 + text2 + text3
+        print(text)
+        filed(input_dict, text)
         
-def main(input_array):
-    if len(input_array) == 5 and input_array[3] == 'file'\
-        and input_array[1] in ['checkout', 'search', 'test', 'fsearch']:
-        main_filed(input_array)
-    elif len(input_array) == 3 and input_array[1] in ['checkout', 'search', 'test', 'fsearch']:
-        main_stdout(input_array)
-    else:
-        print(help_text)
         
 def search(search_str):
     wall = str(int(random.random()*4))
@@ -244,4 +256,5 @@ def int2base(x, base):
     return ''.join(digits)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    input_dict= arg_check(sys.argv)
+    main(input_dict)
