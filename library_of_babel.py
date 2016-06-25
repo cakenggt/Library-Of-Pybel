@@ -18,13 +18,15 @@ title_mult = pow(30, 25)
 help_text = '''
 --checkout <addr> - Checks out a page of a book. Also displays the page's title.
 
+--fcheckout <file>   Does exactly the search does, but with address in the file.
+
 --search <'text'> - Does 3 searches for the text you input:
 >Page contains: Finds a page which contains the text.
 >Page only contains: Finds a page which only contains that text and nothing else.
 >Title match: Finds a title which is exactly this string. For a title match, it will only match the first 25 characters. Addresses returned for title matches will need to have a page number added to the tail end, since they lack this.
 Mind the quotemarks.
 
---fsearch <file> - Does exactly the search does, but with text in the file
+--fsearch <file> - Does exactly the search does, but with text in the file.
 
 --file <file> - Dump rusult into the file
 
@@ -53,6 +55,7 @@ def arg_check(input_array):
             '--search': [0, None],
              '--test': [0, None], 
              '--fsearch': [0, None], 
+             '--fcheckout': [0, None],
              '--file': [0, None]}
     try:
         for argv in input_array[1:]:
@@ -67,6 +70,9 @@ def arg_check(input_array):
             if argv == '--fsearch':
                 coms['--fsearch'][0] = 1
                 coms['--fsearch'][1] = input_array[input_array.index(argv) + 1]
+            if argv == '--fcheckout':
+                coms['--fcheckout'][0] = 1
+                coms['--fcheckout'][1] = input_array[input_array.index(argv) + 1]
             if argv == '--file':
                 coms['--file'][0] = 1
                 coms['--file'][1] = input_array[input_array.index(argv) + 1]
@@ -135,7 +141,13 @@ def main(input_dict):
         text = text1 + text2 + text3
         print(text)
         filed(input_dict, text)
-        
+    elif input_dict['--fcheckout'][0]:
+        file = input_dict['--fcheckout'][1]
+        with open(file, 'r') as f:
+            key_str = ''.join([line for line in f.readlines() if line is not'\n'])[:-1]
+        text  ='\nTitle: '+getTitle(key_str) + '\n'+getPage(key_str)+'\n'
+        print(text)
+        filed(input_dict, text)
         
 def search(search_str):
     wall = str(int(random.random()*4))
@@ -179,7 +191,7 @@ def getTitle(address):
         #adding pseudorandom chars
         random.seed(result)
         digs = 'abcdefghijklmnopqrstuvwxyz, .'
-        while len(result) < length_of_page:
+        while len(result) < 25:
             result += digs[int(random.random()*len(digs))]
     elif len(result) > 25:
         result = result[-25:]
