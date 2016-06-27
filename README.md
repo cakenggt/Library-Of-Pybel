@@ -15,6 +15,7 @@ Examples:
 
 Run the file from the command line with an action argument. The following arguments are supported:
 * `--checkout <addr>` Checks out a page of a book. Also displays the page's title.
+* `--fcheckout <file>` Does exactly the checkout does, but with address in the file.
 * `--search <'text'>` Does 3 searches for the text you input.
   * Page contains: Finds a page which contains the text.
   * Page only contains: Finds a page which only contains that text and nothing else.
