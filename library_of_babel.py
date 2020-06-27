@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import string
 import random
 import sys
@@ -131,7 +132,7 @@ def main(input_dict):
     elif input_dict['--fsearch'][0]:
         file = input_dict['--fsearch'][1]
         with open(file, 'r') as f:
-            lines = ''.join([line for line in f.readlines() if line is not'\n'])
+            lines = ''.join([line for line in f.readlines() if line != '\n'])
         search_str = text_prep(lines)
         key_str = search(search_str)
         text1 = '\nPage which includes this text:\n'+ getPage(key_str) +'\n\n@ address '+ key_str +'\n'
@@ -144,7 +145,7 @@ def main(input_dict):
     elif input_dict['--fcheckout'][0]:
         file = input_dict['--fcheckout'][1]
         with open(file, 'r') as f:
-            key_str = ''.join([line for line in f.readlines() if line is not'\n'])[:-1]
+            key_str = ''.join([line for line in f.readlines() if line != '\n'])[:-1]
         text  ='\nTitle: '+getTitle(key_str) + '\n'+getPage(key_str)+'\n'
         print(text)
         filed(input_dict, text)
@@ -163,11 +164,11 @@ def search(search_str):
     depth = int(random.random()*(length_of_page-len(search_str)))
     #random padding that goes before the text
     front_padding = ''
-    for x in xrange(depth):
+    for x in range(depth):
         front_padding += digs[int(random.random()*len(digs))]
     #making random padding that goes after the text
     back_padding = ''
-    for x in xrange(length_of_page-(depth+len(search_str))):
+    for x in range(length_of_page-(depth+len(search_str))):
         back_padding += digs[int(random.random()*len(digs))]
     search_str = front_padding + search_str + back_padding
     hex_addr = int2base(stringToNumber(search_str)+(loc_int*loc_mult), 36) #change to base 36 and add loc_int, then make string
@@ -239,7 +240,7 @@ def toText(x):
     digits = []
     while x:
         digits.append(digs[x % 29])
-        x /= 29
+        x //= 29
     if sign < 0:
         digits.append('-')
     digits.reverse()
@@ -248,7 +249,7 @@ def toText(x):
 def stringToNumber(iString):
     digs = 'abcdefghijklmnopqrstuvwxyz, .'
     result = 0
-    for x in xrange(len(iString)):
+    for x in range(len(iString)):
         result += digs.index(iString[len(iString)-x-1])*pow(29,x)
     return result
 
@@ -261,7 +262,7 @@ def int2base(x, base):
     digits = []
     while x:
         digits.append(digs[x % base])
-        x /= base
+        x //= base
     if sign < 0:
         digits.append('-')
     digits.reverse()
