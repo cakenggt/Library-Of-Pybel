@@ -219,8 +219,7 @@ def getPage(address):
     loc_int = int(page+volume+shelf+wall)
     key = int(hex_addr, 36)
     key -= loc_int*loc_mult
-    str_36 = int2base(key, 36)
-    result = toText(int(str_36, 36))
+    result = toText(key)
     if len(result) < length_of_page:
         #adding pseudorandom chars
         random.seed(result)
